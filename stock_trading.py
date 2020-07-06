@@ -70,7 +70,10 @@ def stock_predictor(inputs, predictor_type, use_batch_norm):
         net = tflearn.reshape(inputs, new_shape=[-1, window_length, 3])
         if DEBUG:
             print('Reshaped input:', net.shape)
-        net = tflearn.lstm(net, hidden_dim)
+        net = tflearn.lstm(net, hidden_dim) #return_seq = True
+        
+        #net = tflearn.lstm(net, 32) ##plus
+
         if DEBUG:
             print('After LSTM:', net.shape)
         net = tflearn.reshape(net, new_shape=[-1, num_stocks, hidden_dim])
@@ -209,17 +212,18 @@ def obs_normalizer(observation):
     """ Preprocess observation obtained by environment
 
     Args:
-        observation: (nb_classes, window_length, num_features) or with info
+        observation: (nb_classes, window_length, num_features) or with info   (open, close, high, low, var)
 
     Returns: normalized
-
+    
     """
     if isinstance(observation, tuple):
         observation = observation[0]
     # directly use close/open ratio as feature
     obs_price_ratio = (observation[:, :, 1] / observation[:, :, 0]) - 1
-    obs_volume_ratio = (observation[:, :, 4] - np.mean(observation[:, :, 4]))/np.std(observation[:, :, 4])
-    obs_amp = (observation[:, :, 2] - observation[:, :, 3]) / observation[:, :, 0]
+    #obs_volume_ratio = observation[:, :, 4]- observation[:, :, 4] + 1
+    obs_volume_ratio = observation[:, :, 4]
+    obs_amp = (observation[:, :, 2] - observation[:, :, 3]) / observation[:, :, 0] ## symbol as fraction
     observation = np.concatenate((np.expand_dims(obs_price_ratio, axis=2),
                                   np.expand_dims(obs_volume_ratio, axis=2),
                                   np.expand_dims(obs_amp, axis=2)), axis=2)
@@ -244,10 +248,10 @@ if __name__ == '__main__':
     parser.add_argument('--predictor_type', '-p', help='cnn or lstm predictor', required=True)
     parser.add_argument('--window_length', '-w', help='observation window length', required=True)
     parser.add_argument('--batch_norm', '-b', help='whether to use batch normalization', required=True)
-    parser.add_argument('--rollout_steps', '-r', help='steps in every episode', default=120)
-    parser.add_argument('--batch_size', '-s', help='batch size for memory replay', default=100)
-    parser.add_argument('--training_start', '-ts', help='training set start date, select betweeen 20180102 and 20181029', required=True)
-    parser.add_argument('--training_end', '-te', help='training set end date, select betweeen 20180102 and 20181029', required=True)
+    parser.add_argument('--rollout_steps', '-r', help='steps in every episode', default=2)
+    parser.add_argument('--batch_size', '-s', help='batch size for memory replay', default=10)
+    parser.add_argument('--training_start', '-ts', help='training set start date, select betweeen 2005030 and 20161101', required=True)
+    parser.add_argument('--training_end', '-te', help='training set end date, select betweeen 2005030 and 20161101', required=True)
 
     args = vars(parser.parse_args())
 
@@ -258,25 +262,23 @@ if __name__ == '__main__':
     else:
         DEBUG = False
 
-    dataset = pd.read_csv("data/stock_price_minutes.csv")
-    df_time = pd.DataFrame({'year': dataset.date.astype(str).str.slice(0, 4).astype(int),
-                            'month': dataset.date.astype(str).str.slice(4, 6).astype(int),
-                            'day': dataset.date.astype(str).str.slice(6, 8).astype(int),
-                            'hour': dataset.time.astype(str).str.slice(0, 2).astype(int),
-                            'minute': dataset.time.astype(str).str.slice(2, 4).astype(int)
-                            })
+    dataset = pd.read_csv("data/training_data.csv")
+    df_time = pd.DataFrame({'year': dataset.DataTime.astype(str).str.slice(0, 4).astype(int),
+                        'month': dataset.DataTime.astype(str).str.slice(5, 7).astype(int),
+                        'day': dataset.DataTime.astype(str).str.slice(8, 10).astype(int),
+                        })
     df_time = pd.to_datetime(df_time).to_frame()
     df_time.columns = ['Time']
     dataset = dataset.merge(df_time, left_index=True, right_index=True, how='left')
-    start_date = pd.Timestamp(int(args['training_start'][:4]), int(args['training_start'][4:6]),
-                              int(args['training_start'][6:]))
-    end_date = pd.Timestamp(int(args['training_end'][:4]), int(args['training_end'][4:6]),
-                            int(args['training_end'][6:]))
+
+    start_date = args['training_start']
+    end_date = args['training_end']
+    
     dataset_training = dataset[(dataset.Time <= end_date) & (dataset.Time >= start_date)]
-    start_idx = dataset_training.date_index.iloc[0]
+    start_idx = dataset_training.DataTime.iloc[0]
 
     abbreviation = pd.read_csv("data/symbols.txt")
-    suffix = ["_open", "_close", "_high", "_low", "_vol"]
+    suffix = [" open", " close", " high", " low", " volume"]
     history = np.empty((len(abbreviation), len(dataset_training), len(suffix)))
 
     for i_n, i in enumerate(abbreviation['symbols']):

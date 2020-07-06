@@ -15,16 +15,6 @@ import gym.spaces
 
 eps = 1e-20
 
-dataset = pd.read_csv("data/stock_price_minutes.csv")
-df_time = pd.DataFrame({'year': dataset.date.astype(str).str.slice(0, 4).astype(int),
-                        'month': dataset.date.astype(str).str.slice(4, 6).astype(int),
-                        'day': dataset.date.astype(str).str.slice(6, 8).astype(int),
-                        'hour': dataset.time.astype(str).str.slice(0, 2).astype(int),
-                        'minute': dataset.time.astype(str).str.slice(2, 4).astype(int)
-                        })
-df_time = pd.to_datetime(df_time).to_frame()
-df_time.columns = ['Time']
-
 def random_shift(x, fraction):
     """ Apply a random shift to a pandas series. """
     min_x, max_x = np.min(x), np.max(x)
@@ -75,35 +65,49 @@ class DataGenerator(object):
     def _step(self):
         # get observation matrix from history
         # the stock data were observed every 7 minutes
-        self.step += 7
+        
+        ##self.step += 7
+        self.step += 1
         obs = self.data[:, self.step:self.step + self.window_length, :].copy()
+        
+        
         # normalize obs with open price
 
         # used for compute optimal action and sanity check
         ground_truth_obs = self.data[:, self.step + self.window_length:self.step + self.window_length + 1, :].copy()
 
-        done = self.step + 7 >= self.steps
+        done = self.step + 1 >= self.steps
         return obs, done, ground_truth_obs
 
     def _step_sim(self):
         # get observation without stepping forward
         obs = self.data[:, self.step:self.step + self.window_length, :].copy()
+        
 
         # used for compute optimal action and sanity check
         ground_truth_obs = self.data[:, self.step + self.window_length:self.step + self.window_length + 1, :].copy()
 
-        done = self.step + 7 >= self.steps
+#         done = self.step + 7 >= self.steps
+        done = self.step + 1 >= self.steps
         return obs, done, ground_truth_obs
+    
+####################################################
 
     def reset(self):
         self.step = 0
 
         # get data for this episode, each episode might be different.
+        
+#         low=self.window_length
+#         high=self._data.shape[1] - self.steps
+#         print(low,high,self._data.shape,self.steps)
+        
         self.idx = np.random.randint(
             low=self.window_length, high=self._data.shape[1] - self.steps)
 
         # print('Start date: {}'.format(index_to_date(self.idx)))
-        data = self._data[:, self.idx - self.window_length:self.idx + self.steps + 7, :]
+#         data = self._data[:, self.idx - self.window_length:self.idx + self.steps + 7, :]
+        data = self._data[:, self.idx - self.window_length:self.idx + self.steps + 1, :]
         # apply augmentation?
         self.data = data
         return self.data[:, self.step:self.step + self.window_length, :].copy(), \
@@ -118,7 +122,7 @@ class PortfolioSim(object):
     Based of [Jiang 2017](https://arxiv.org/abs/1706.10059)
     """
 
-    def __init__(self, asset_names=list(), returns_list=list(), steps=730, trading_cost=0.0025, time_cost=0.0):
+    def __init__(self, asset_names=list(), returns_list=list(), steps=730, trading_cost=0.0, time_cost=0.0):
         self.asset_names = asset_names
         self.returns_list = returns_list
         self.cost = trading_cost
@@ -142,7 +146,8 @@ class PortfolioSim(object):
 
         dw1 = (y1 * w0) / (np.dot(y1, w0) + eps)  # (eq7) weights evolve into
 
-        mu1 = self.cost * (np.abs(dw1[1:] - w1[1:])).sum() # (eq16) cost to change portfolio
+        ##mu1 = self.cost * (np.abs(dw1[1:] - w1[1:])).sum() # (eq16) cost to change portfolio
+        mu1 = 0
 
         assert mu1 < 1.0, 'Cost is larger than current holding'
 
@@ -151,14 +156,13 @@ class PortfolioSim(object):
 
         p1 = LongPosition_value + ShortPosition_value
 
-        p1 = p1 * (1 - self.time_cost)  # we can add a cost to holding
+        ##p1 = p1 * (1 - self.time_cost)  # we can add a cost to holding
 
         rho1 = p1 / p0 - 1  # rate of returns
 
-        r1 = np.log((p1 + eps) / (p0 + eps))  # log rate of return
-
+        r1 = np.log((p1 + eps) / (p0 + eps))  # log rate of return ##eps avoid zero division
         # TODO use sharpe ratio for reward
-        reward = r1/self.steps  # reward
+        reward = r1 #/self.steps  # reward
         # remember for next step
         self.p0 = p1
         self.w0 = w1
@@ -203,10 +207,10 @@ class PortfolioEnv(gym.Env):
     def __init__(self,
                  history,
                  abbreviation,
-                 steps=120,
-                 trading_cost=0.0025,
+                 steps=2,
+                 trading_cost=0.00,
                  time_cost=0.00,
-                 window_length=50,
+                 window_length=6,
                  start_idx=0
                  ):
         """
@@ -238,8 +242,7 @@ class PortfolioEnv(gym.Env):
             0, 1, shape=(len(self.src.asset_names)*2 + 1,), dtype=np.float32)  # include cash
 
         # get the observation space from the data min and max
-        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(len(abbreviation), window_length,
-                                                                                 history.shape[-1]), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(len(abbreviation), window_length, history.shape[-1]), dtype=np.float32)
         
     def step(self, action, simulation=0):
         return self._step(action, simulation)
@@ -256,7 +259,7 @@ class PortfolioEnv(gym.Env):
             (len(self.sim.asset_names)*2 + 1,)
         )
 
-        # normalise just in case
+        # normalize just in case
         action = np.clip(action, 0, 1)
 
         weights = action  # np.array([cash_bias] + list(action))  # [w0, w1...]
@@ -277,10 +280,13 @@ class PortfolioEnv(gym.Env):
         observation = np.concatenate((cash_observation, observation), axis=0)
         cash_ground_truth = np.ones((1, 1, ground_truth_obs.shape[2]))
         ground_truth_obs = np.concatenate((cash_ground_truth, ground_truth_obs), axis=0)
+        
+        
         # relative price vector of last observation day (close/open)
         current_open_price_vector = observation[:, -1, 0]
-        last_open_price_vector = observation[:, -7, 0]
-
+        last_open_price_vector = observation[:, -2, 0]
+        
+    
         y1 = current_open_price_vector / last_open_price_vector
         y1 = np.append(y1, y1[1:])
 
@@ -290,10 +296,14 @@ class PortfolioEnv(gym.Env):
         if simulation == 0:
             info['market_value'] = np.cumprod([inf["return"] for inf in self.infos + [info]])[-1]
             # add dates
-            info['date'] = self.start_idx + self.src.idx + self.src.step
+            
+        
+            
+            info['date'] = self.start_idx ##+ self.src.idx + self.src.step
             info['steps'] = self.src.step
             info['next_obs'] = ground_truth_obs
             self.infos.append(info)
+            
 
         return observation, reward, done1 or done2, info
     
@@ -324,16 +334,29 @@ class PortfolioEnv(gym.Env):
         return self._render(mode='human', close=False)
 
     def plot(self):
+        dataset = pd.read_csv("./data/training_data.csv")
+        df_time = pd.DataFrame({'year': dataset.DataTime.astype(str).str.slice(0, 4).astype(int),
+                        'month': dataset.DataTime.astype(str).str.slice(5, 7).astype(int),
+                        'day': dataset.DataTime.astype(str).str.slice(8, 10).astype(int),
+                        })
+        df_time = pd.to_datetime(df_time).to_frame()
+
+        df_time.columns = ['DataTime']
+        
         df_info = pd.DataFrame(self.infos)
-        df_env_info = pd.merge(df_info, df_time, left_on='date', right_index=True)
+        
+        df_env_info = pd.concat([df_info, df_time],axis = 1)
         x = range(len(df_env_info))
         tick_f = round(len(df_env_info)/15)
         plt.figure(1)
         plt.plot(x, df_env_info['portfolio_value'], label='Portfolio value')
         plt.plot(x, df_env_info['market_value'], label='Market value')
-        plt.xticks(x[::tick_f], df_env_info.Time[::tick_f], rotation=30)
-        plt.legend(loc='upper right')
+        plt.xticks(x[::tick_f], df_env_info.DataTime[::tick_f], rotation=30)
+        plt.legend(loc='upper right')              
         plt.title('Portfolio value')
         plt.show()
+ 
+        df_env_info.to_csv("df_env_infos.csv")
+
 
 

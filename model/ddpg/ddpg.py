@@ -53,7 +53,9 @@ class DDPG(BaseModel):
         """ Load training history from path. To be add feature to just load weights, not training states
 
         """
-        if load_weights:
+#        print('Build model from scratch')
+#        self.sess.run(tf.global_variables_initializer())
+        if load_weights==True:
             try:
                 variables = tf.global_variables()
                 param_dict = {}
@@ -61,7 +63,7 @@ class DDPG(BaseModel):
                 saver.restore(self.sess, self.model_save_path)
                 for var in variables:
                     var_name = var.name[:-2]
-                    if verbose:
+                    if verbose==True:
                         print('Loading {} from checkpoint. Name: {}'.format(var.name, var_name))
                     param_dict[var_name] = var
             except:
@@ -72,6 +74,7 @@ class DDPG(BaseModel):
             print('Build model from scratch')
             self.sess.run(tf.global_variables_initializer())
 
+        
     def train(self, save_every_episode=1, verbose=True, debug=False):
         """ Must already call intialize
 
@@ -112,7 +115,8 @@ class DDPG(BaseModel):
             ep_ave_max_q = 0
 
             for j in range(self.config['max step']):
-                # print("step: {}, observation: {}".format(j, previous_observation))
+               # print("step: {}, observation: {}".format(j, previous_observation.shape))
+               # print("step: {}".format(j))
                 action = self.actor.predict(np.expand_dims(previous_observation, axis=0)).squeeze(
                     axis=0)
 
@@ -120,8 +124,8 @@ class DDPG(BaseModel):
                     self.action_take = self.action_processor(action)
                 else:
                     self.action_take = action
-                if j % 10 == 0:
-                    print(action)
+#                if j % 10 == 0:
+#                    print(action)
 
                 observation, reward, done, info = self.env.step(self.action_take)
 
@@ -129,6 +133,9 @@ class DDPG(BaseModel):
 
                 if self.obs_normalizer:
                     observation = self.obs_normalizer(observation)
+                    
+#                 print('observation',observation.shape)
+#                 print('previous_observation',previous_observation.shape)
 
                 self.buffer.add(previous_observation, action, reward, done, observation)
 
@@ -182,10 +189,11 @@ class DDPG(BaseModel):
             writer.add_summary(summary_str, i)
             writer.flush()
 
-            print('Episode: {:d}, Reward: {:.2f}, Qmax: {:.4f}'.format(i, np.exp(ep_reward), (ep_ave_max_q / float(j))))
+#            print('Episode: {:d}, Reward: {:.2f}, Qmax: {:.4f}'.format(i, np.exp(ep_reward), (ep_ave_max_q / float(j))))
+            print('Episode: {:d}, Reward: {:.5f}, Qmax: {:.5f}'.format(i, np.exp(ep_reward), (ep_ave_max_q / float(j))))
 
             # save intermediate model
-            if i % 100 == 0:
+            if i % 100 == 0:  #原來100
                 intermediate_model_path = self.model_save_path + "_Episode_" + "{}".format(i)
                 if not os.path.exists(intermediate_model_path):
                     os.makedirs(intermediate_model_path, exist_ok=True)

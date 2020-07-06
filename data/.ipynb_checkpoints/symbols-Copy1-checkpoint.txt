@@ -1,0 +1,16 @@
+symbols
+Asia Bond
+Asia Equity
+Creat China Equity
+EmgMkt Bond
+EmgMkt Equity
+Europe Bond
+Europe Equity
+Global Bond
+Global Equity
+HY Bond
+Multi Asset
+Other Bond
+Other Equity
+US Bond
+US Equity
