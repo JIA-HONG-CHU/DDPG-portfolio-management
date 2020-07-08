@@ -70,10 +70,8 @@ def stock_predictor(inputs, predictor_type, use_batch_norm):
         net = tflearn.reshape(inputs, new_shape=[-1, window_length, 3])
         if DEBUG:
             print('Reshaped input:', net.shape)
-        net = tflearn.lstm(net, hidden_dim) #return_seq = True
+        net = tflearn.lstm(net, hidden_dim) 
         
-        #net = tflearn.lstm(net, 32) ##plus
-
         if DEBUG:
             print('After LSTM:', net.shape)
         net = tflearn.reshape(net, new_shape=[-1, num_stocks, hidden_dim])
@@ -108,12 +106,10 @@ class StockActor(ActorNetwork):
         net = tflearn.fully_connected(net, 64)
         if self.use_batch_norm:
             net = tflearn.layers.normalization.batch_normalization(net)
-        # net = tflearn.layers.normalization.batch_normalization(net)
         net = tflearn.activations.relu(net)
         net = tflearn.fully_connected(net, 64)
         if self.use_batch_norm:
             net = tflearn.layers.normalization.batch_normalization(net)
-        # net = tflearn.layers.normalization.batch_normalization(net)
         net = tflearn.activations.relu(net)
         # Final layer weights are init to Uniform[-3e-3, 3e-3]
         w_init = tflearn.initializations.uniform(minval=-0.003, maxval=0.003)
@@ -221,7 +217,6 @@ def obs_normalizer(observation):
         observation = observation[0]
     # directly use close/open ratio as feature
     obs_price_ratio = (observation[:, :, 1] / observation[:, :, 0]) - 1
-    #obs_volume_ratio = observation[:, :, 4]- observation[:, :, 4] + 1
     obs_volume_ratio = observation[:, :, 4]
     obs_amp = (observation[:, :, 2] - observation[:, :, 3]) / observation[:, :, 0] ## symbol as fraction
     observation = np.concatenate((np.expand_dims(obs_price_ratio, axis=2),
@@ -250,8 +245,8 @@ if __name__ == '__main__':
     parser.add_argument('--batch_norm', '-b', help='whether to use batch normalization', required=True)
     parser.add_argument('--rollout_steps', '-r', help='steps in every episode', default=2)
     parser.add_argument('--batch_size', '-s', help='batch size for memory replay', default=10)
-    parser.add_argument('--training_start', '-ts', help='training set start date, select betweeen 2005030 and 20161101', required=True)
-    parser.add_argument('--training_end', '-te', help='training set end date, select betweeen 2005030 and 20161101', required=True)
+    parser.add_argument('--training_start', '-ts', help='training set start date, select betweeen 20050301 and 20161101', required=True)
+    parser.add_argument('--training_end', '-te', help='training set end date, select betweeen 20050301 and 20161101', required=True)
 
     args = vars(parser.parse_args())
 
