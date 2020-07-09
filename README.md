@@ -47,11 +47,11 @@ train_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
 plot_the_result_of_testing_data_Training.ipynb
 ```
-<img src='./imgs/training.jpg' width="600px"/>
+<img src='./imgs/training.png' width="600px"/>
 
-<img src='./imgs/training_market.jpg' width="600px"/>
+<img src='./imgs/training_market.png' width="600px"/>
 
-<img src='./imgs/training_specific.jpg' width="600px"/>
+<img src='./imgs/training_specific.png' width="600px"/>
 
 ## Testing
 
@@ -69,11 +69,11 @@ test_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
 plot_the_result_of_testing_data_Testing.ipynb
 ```
-<img src='./imgs/testing.jpg' width="600px"/>
+<img src='./imgs/testing.png' width="600px"/>
 
-<img src='./imgs/testing_market.jpg' width="600px"/>
+<img src='./imgs/testing_market.png' width="600px"/>
 
-<img src='./imgs/testing_specific.jpg' width="600px"/>
+<img src='./imgs/testing_specific.png' width="600px"/>
 
 
 
