@@ -47,7 +47,7 @@ train_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
 plot_the_result_of_testing_data_Training.ipynb
 ```
-<img src='./imgs/training.png' width="600px"/>
+<img src='./imgs/training.png' width="800px"/>
 
 <img src='./imgs/training_market.png' width="600px"/>
 
