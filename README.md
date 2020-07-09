@@ -69,6 +69,19 @@ test_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
 plot_the_result_of_testing_data_Testing.ipynb
 ```
+We used four models with different training times and the results are as follows, we found that model 2 performed well on training data (Market), while model 3 performed well on testing data (Specific)
+
+model1 : Epoch 5500
+model2 : Epoch 6200
+model1 : Epoch 7200
+model2 : Epoch 8200
+
+Last Portfolio value :
+CPGR : 
+MDD :
+NFBM :
+
+
 <img src='./imgs/testing.png' width="600px"/>
 
 <img src='./imgs/testing_market.png' width="600px"/>
