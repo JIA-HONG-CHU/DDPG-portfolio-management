@@ -4,7 +4,7 @@
 
 ## Datasets preprocessing
 
-run
+### Run
 ```
 DRL_Data_Preprocessing.ipynb
 ```
@@ -13,12 +13,12 @@ DRL_Data_Preprocessing.ipynb
 
 ## Training
 
-run
+### Run
 
 ```bash
 python stock_trading.py -p lstm  -w 6 -b True -ts 20050301 -te 20161101
 ```
-### Usage
+#### Usage
 
 ```
 * -d print debug statement, default False
@@ -34,7 +34,7 @@ python stock_trading.py -p lstm  -w 6 -b True -ts 20050301 -te 20161101
 
 ## Results 
 
-run 
+### Run 
 ```
 ddpg_experiment.ipynb  #Get the portfolio weights during the training time
 
@@ -43,21 +43,21 @@ choose_specific_stocks_train.ipynb  #Get the name of specific stocks
 train_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
 
-Then run
+### Then run
 ```
 plot_the_result_of_testing_data_Training.ipynb
 ```
-<img src='imgs/training.jpg' width="600px"/>
+<img src='./imgs/training.jpg' width="600px"/>
 
-<img src='imgs/training_market.jpg' width="600px"/>
+<img src='./imgs/training_market.jpg' width="600px"/>
 
-<img src='imgs/training_specific.jpg' width="600px"/>
+<img src='./imgs/training_specific.jpg' width="600px"/>
 
 ## Testing
 
 ## Results
 
-run
+### Run 
 ```
 ddpg_experiment.ipynb  #Get the portfolio weights during the testing time
 
@@ -65,15 +65,15 @@ choose_specific_stocks_test.ipynb  #Get the name of specific stocks
 
 test_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
-Then run 
+### Then run 
 ```
 plot_the_result_of_testing_data_Testing.ipynb
 ```
-<img src='imgs/testing.jpg' width="600px"/>
+<img src='./imgs/testing.jpg' width="600px"/>
 
-<img src='imgs/testing_market.jpg' width="600px"/>
+<img src='./imgs/testing_market.jpg' width="600px"/>
 
-<img src='imgs/testing_specific.jpg' width="600px"/>
+<img src='./imgs/testing_specific.jpg' width="600px"/>
 
 
 
