@@ -59,7 +59,6 @@ plot_the_result_of_testing_data_Training.ipynb
 
 run
 ```
-```
 ddpg_experiment.ipynb  #Get the portfolio weights during the testing time
 
 choose_specific_stocks_test.ipynb  #Get the name of specific stocks
