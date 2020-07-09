@@ -83,8 +83,6 @@ plot_the_result_of_testing_data_Testing.ipynb
 ```
 <img src='./imgs/testing.png' width="600px"/>
 
-<img src='./imgs/testing_market.png' width="600px"/>
-
 <img src='./imgs/testing_specific.png' width="600px"/>
 
 Our model performed well in the testing dataset, which outperformed the market by 20 percents.
