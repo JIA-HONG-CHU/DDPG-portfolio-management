@@ -47,6 +47,18 @@ train_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
 plot_the_result_of_testing_data_Training.ipynb
 ```
+We used four models with different training times and the results are as follows, we found that model 2 performed well on training data (Market), while model 3 performed well on testing data (Specific)
+
+model1 : Epoch 5500
+model2 : Epoch 6200
+model1 : Epoch 7200
+model2 : Epoch 8200
+
+Last Portfolio value : Literally
+CAGR(Compound annual growth rate) : (Last Portfolio value - Beginning Portfolio value)**(1/n) - 1
+MDD(Max drawdown) : (Next month Portfolio value - This month Portfolio value) / This month Portfolio value
+NFBM(New fund by month) : e.g.(This month Portfolio weight has A & B stocks Next month have C stock, so the NFBM is 3)
+
 <img src='./imgs/training.png' width="800px"/>
 
 <img src='./imgs/training_market.png' width="600px"/>
@@ -69,26 +81,13 @@ test_choose_stocks.ipynb #Converting specific stocks information to real prices
 ```
 plot_the_result_of_testing_data_Testing.ipynb
 ```
-We used four models with different training times and the results are as follows, we found that model 2 performed well on training data (Market), while model 3 performed well on testing data (Specific)
-
-model1 : Epoch 5500
-model2 : Epoch 6200
-model1 : Epoch 7200
-model2 : Epoch 8200
-
-Last Portfolio value :
-CPGR : 
-MDD :
-NFBM :
-
-
 <img src='./imgs/testing.png' width="600px"/>
 
 <img src='./imgs/testing_market.png' width="600px"/>
 
 <img src='./imgs/testing_specific.png' width="600px"/>
 
-
+Our model performed well in the testing dataset, which outperformed the market by 20 percents.
 
 # Reference
 * Code is from https://github.com/sino30535/DDPG-portfolio-management
