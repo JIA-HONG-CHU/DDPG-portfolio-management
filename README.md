@@ -75,7 +75,7 @@ ddpg_experiment.ipynb  #Get the portfolio weights during the testing time
 
 choose_specific_stocks_test.ipynb  #Get the name of specific stocks
 
-test_choose_stocks.ipynb #Converting specific stocks information to real prices
+test_choose_stocks.ipynb #Convert specific stocks information to real prices
 ```
 ### Then run 
 ```
