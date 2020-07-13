@@ -57,7 +57,7 @@ We used four models with different training times and the results are as follows
 * Last Portfolio value : Literally
 * CAGR(Compound annual growth rate) : (Last Portfolio value - Beginning Portfolio value)**(1/n) - 1
 * MDD(Max drawdown) : (Next month Portfolio value - This month Portfolio value) / This month Portfolio value
-* NFBM(New fund by month) : e.g.(This month Portfolio weight has A & B stocks Next month have C stock, so the NFBM is 3)
+* NFBM(New fund by month) : e.g.(This month Portfolio weight have A & B stocks Next month have C stock, so the NFBM is 3)
 
 <img src='./imgs/training.png' width="800px"/>
 
